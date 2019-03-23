@@ -24,6 +24,7 @@ const int DHTPin = 4; //d2
 DHT dht(DHTPin, DHTTYPE);
 
 const uint8_t AlarmLEDpin = 5; //d1
+bool temepture_alarm = false;
 
 
 static char celsiusTemp[7];
@@ -36,7 +37,7 @@ int lux = 0;
 
 void readLDR()
 {
-  int val = analogRead(A0);          
+  int val = analogRead(A0);
   lux = map(val, 330, 1024, 0, 100);
   //lux = val;
 }
@@ -63,8 +64,10 @@ void temperatureAlarmControl()
   if (temperature >= temperature_treshold)
   {
     digitalWrite(AlarmLEDpin, !digitalRead(AlarmLEDpin));
+    temepture_alarm = true;
   } else if (temperature <= temperature_treshold - 2) {
     digitalWrite(AlarmLEDpin, LOW);
+    temepture_alarm = false;
   }
 }
 
@@ -79,7 +82,7 @@ void setup() {
   WiFi.softAP(ssid, password);
   WiFi.softAPConfig(local_ip, gateway, subnet);
   delay(100);
-  
+
   server.on("/", handle_OnConnect);
   server.on("/led1on", handle_led1on);
   server.on("/led1off", handle_led1off);
@@ -181,6 +184,7 @@ String SendHTML(uint8_t led1stat, uint8_t led2stat) {
 
 
 
+
   if (led1stat)
   {
     ptr += "<p>LED1 Status: ON</p><a class=\"button button-off\" href=\"/led1off\">OFF</a>\n";
@@ -199,7 +203,10 @@ String SendHTML(uint8_t led1stat, uint8_t led2stat) {
     ptr += "<p>LED2 Status: OFF</p><a class=\"button button-on\" href=\"/led2on\">ON</a>\n";
   }
 
-
+  if (temepture_alarm)
+  {
+    ptr += "<h2><font color=\"#b2140c\">Alarm: Temperature is higher then 30C </h2>\n";
+  }
 
   ptr += "</body>\n";
   ptr += "</html>\n";
