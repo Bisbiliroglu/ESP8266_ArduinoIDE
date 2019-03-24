@@ -3,9 +3,9 @@
 #include "DHT.h"
 
 /* Put your SSID & Password */
-const char* ssid = "NodeMCU";  // Enter SSID here
+const char* ssid = "WebServer";  // Enter SSID here
 const char* password = "12345678";  //Enter Password here
-#define DHTTYPE DHT11   // DHT 11
+#define DHTTYPE DHT11   
 
 /* Put IP Address details */
 IPAddress local_ip(192, 168, 1, 1);
@@ -30,7 +30,7 @@ bool temepture_alarm = false;
 static char celsiusTemp[7];
 static char humidityTemp[7];
 
-int second_counter = 0;
+int delay_counter = 0;
 int temperature_treshold = 30;
 int temperature = 0;
 int lux = 0;
@@ -115,14 +115,13 @@ void loop() {
   }
   digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
   delay(100);
-  second_counter++;
+  delay_counter++;
   temperatureAlarmControl();
-  if (second_counter == 10)
+  if (delay_counter == 4)
   {
-    second_counter = 0;
+    delay_counter = 0;
     readDHT11();
     readLDR();
-    server.send(200, "text/html", SendHTML(LED1status, LED2status));
   }
 }
 
